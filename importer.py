@@ -104,7 +104,6 @@ def get_importable_files(get_courses=False):
 
 
 def import_single_course(filename):
-    print('IMPORTING course:', filename, file=sys.stderr)
     course_id, course_run = _filename_to_id_and_run(filename)
 
     course_full_id = 'course-v1:Microsoft+{id}+{run}'.format(
@@ -117,6 +116,7 @@ def import_single_course(filename):
 
     subprocess.call(['tar', '-xzf', filename, '-C', course_xml_dir])
 
+    print('IMPORTING course:', course_full_id, filename, file=sys.stderr)
     course_items = import_course_from_xml(
         store=MOD_STORE,
         user_id=ModuleStoreEnum.UserID.mgmt_command,
