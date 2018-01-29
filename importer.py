@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-from __future__ import print_function
-
 import json
 from glob import glob
 import subprocess
@@ -10,6 +7,7 @@ from os import makedirs
 import sys
 import shutil
 import tarfile
+from bs4 import BeautifulSoup
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -20,6 +18,7 @@ from django_comment_common.utils import (
 )
 
 from opaque_keys.edx.keys import CourseKey
+from opaque_keys.edx.locator import LibraryLocator
 
 from xmodule.contentstore.django import contentstore
 from xmodule.modulestore.django import modulestore
@@ -30,7 +29,7 @@ from xmodule.modulestore.xml_importer import (
 
 
 MOD_STORE = modulestore()
-DATA_DIR = '/edx/app/edxapp/data'
+DATA_DIR = '/edx/var/edxapp/data'  # settings.GITHUB_REPO_ROOT
 WORK_TMP_DIR = '/tmp/courses-workdir'
 ZIP_EXTRACT_DIR = path.join(WORK_TMP_DIR, 'zip_dest')
 XML_EXTRACT_DIR = path.join(WORK_TMP_DIR, 'xml_root')
@@ -62,7 +61,7 @@ def _filename_to_id_and_run(filename):
     basename = path.basename(filename).replace('.tar.gz', '')
     parts = basename.split('-')
 
-    course_id, run = parts[-2:] # Microsoft course file naming convention
+    course_id, run = parts[-2:]  # Microsoft course file naming convention
 
     return course_id.strip(), run.strip()
 
@@ -80,7 +79,7 @@ def extract_zip_courses():
     for parent, _dirs, files in walk(_get_courses_dir()):
         for zipfile in files:
             if zipfile.endswith('.zip'):
-                subprocess.call('unzip', path.join(parent, zipfile), '-d', ZIP_EXTRACT_DIR)
+                subprocess.call(['unzip', path.join(parent, zipfile), '-d', ZIP_EXTRACT_DIR])
 
 
 def get_importable_files(get_courses=False):
@@ -96,11 +95,12 @@ def get_importable_files(get_courses=False):
     :param get_courses:
     :return:
     """
-    for parent, _dirs, files in walk(ZIP_EXTRACT_DIR, _get_courses_dir()):
-        for lib_file in files:
-            if lib_file.endswith('.tar.gz'):
-                if get_courses ^ _is_library_file(path.join(parent, lib_file)):
-                    yield path.join(parent, lib_file)
+    for courses_dir in [ZIP_EXTRACT_DIR, _get_courses_dir()]:
+        for parent, _dirs, files in walk(courses_dir):
+            for lib_file in files:
+                if lib_file.endswith('.tar.gz'):
+                    if get_courses ^ _is_library_file(path.join(parent, lib_file)):
+                        yield path.join(parent, lib_file)
 
 
 def import_single_course(filename):
@@ -116,7 +116,7 @@ def import_single_course(filename):
 
     subprocess.call(['tar', '-xzf', filename, '-C', course_xml_dir])
 
-    print('IMPORTING course:', course_full_id, filename, file=sys.stderr)
+    print >> sys.stderr, 'IMPORTING course:', course_full_id, filename
     course_items = import_course_from_xml(
         store=MOD_STORE,
         user_id=ModuleStoreEnum.UserID.mgmt_command,
@@ -133,18 +133,23 @@ def import_single_course(filename):
     for course in course_items:
         course_id = course.id
         if not are_permissions_roles_seeded(course_id):
-            print('Seeding forum roles for course', course_id, file=sys.stderr)
+            print >> sys.stderr, 'Seeding forum roles for course', course_id
             seed_permissions_roles(course_id)
 
 
 def import_single_library(filename):
-    print('IMPORTING library:', filename, file=sys.stderr)
-    no_extension = path.basename(filename).replace('.tar.gz')
+    no_extension = path.basename(filename).replace('.tar.gz', '')
 
     library_xml_dir = path.join(XML_EXTRACT_DIR, no_extension)
     mkdir(library_xml_dir)
     subprocess.call(['tar', '-xzf', filename, '-C', library_xml_dir])
 
+    with open(path.join(library_xml_dir, 'library/library.xml')) as lib_xml_file:
+        lib_xml = BeautifulSoup(lib_xml_file.read())
+        lib_element = lib_xml.find('library')
+        target_id = LibraryLocator(org=str(lib_element['org']), library=str(lib_element['library']))
+
+    print >> sys.stderr, 'IMPORTING library:', target_id, filename
     import_library_from_xml(
         store=MOD_STORE,
         user_id=ModuleStoreEnum.UserID.mgmt_command,
@@ -154,6 +159,7 @@ def import_single_library(filename):
         static_content_store=contentstore(),
         verbose=True,
         do_import_static=True,
+        target_id=target_id,
         create_if_not_present=True,
     )
 
