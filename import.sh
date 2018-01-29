@@ -6,8 +6,13 @@ set -o pipefail
 
 VIA_CURL=""
 IMPORTER="$PWD/importer.py"
-BASE_URL="https://raw.githubusercontent.com/appsembler/msft-courses/master/"
+BASE_URL="https://raw.githubusercontent.com/appsembler/msft-courses/master"
 COURSES_DIR="$PWD"
+DATA_DIR="/edx/var/edxapp/data/"
+
+cleanup_data_dir() {
+    sudo find "$DATA_DIR" -maxdepth 1 -mindepth 1 -exec rm -rf "{}" \;
+}
 
 if [ -d /edx/src ]; then
     EDXAPP_ENV=devstack_appsembler
@@ -18,11 +23,16 @@ fi
 if [ "$0" == "bash" ]; then
     if [ -z "$1" ]; then
         VIA_CURL="true"
-        IMPORTER="/tmp/importer.py"
-        curl --progress-bar "$BASE_URL/importer.py" > $IMPORTER
+        IMPORTER=$(mktemp /tmp/abc-script.XXXXXXXX)
+        curl "$BASE_URL/importer.py" | tee "$IMPORTER"
+        chmod a+wrx "$IMPORTER"
     fi
 fi
 
 
+cleanup_data_dir
+
 CMS_SHELL="sudo -u edxapp /edx/bin/python.edxapp /edx/bin/manage.edxapp lms --settings=$EDXAPP_ENV shell"
 echo "__file__='$IMPORTER'; COURSES_DIR='$COURSES_DIR'; execfile(__file__);" | $CMS_SHELL
+
+cleanup_data_dir
