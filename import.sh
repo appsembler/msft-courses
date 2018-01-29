@@ -6,7 +6,7 @@ set -o pipefail
 
 VIA_CURL=""
 IMPORTER="$PWD/importer.py"
-BASE_URL="https://appsembler.github.io/msft-courses/"
+BASE_URL="https://raw.githubusercontent.com/appsembler/msft-courses/master/"
 COURSES_DIR="$PWD"
 
 if [ -d /edx/src ]; then

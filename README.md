@@ -32,7 +32,7 @@ extracting `*.zip` files and installing libraries.
 Run the following command:
 
 ```bash
-$ curl https://appsembler.github.io/msft-courses/import.sh | bash
+$ curl https://raw.githubusercontent.com/appsembler/msft-courses/master/import.sh | bash
 ```
 
 ### Course Import Convention
