@@ -1,9 +1,9 @@
 import json
 from glob import glob
 import subprocess
-from os import path, walk, mkdir
+from os import path, walk, mkdir, makedirs, listdir
+import fileinput
 import yaml
-from os import makedirs
 import sys
 import shutil
 import tarfile
@@ -103,6 +103,21 @@ def get_importable_files(get_courses=False):
                         yield path.join(parent, lib_file)
 
 
+def _fix_library_source_bug(course_xml_dir):
+    libraries_dir = path.join(course_xml_dir, 'course/library_content/')
+
+    for library_file in listdir(libraries_dir):
+        library_file = path.join(libraries_dir, library_file)
+
+        with open(library_file, 'r') as library_f:
+            lib_xml = BeautifulSoup(library_f.read(), 'lxml')
+            lib_element = lib_xml.library_content
+
+        with open(library_file, 'w') as library_f:
+            del lib_element['source_library_version']
+            library_f.write(str(lib_element))
+
+
 def import_single_course(filename):
     course_id, course_run = _filename_to_id_and_run(filename)
 
@@ -115,6 +130,8 @@ def import_single_course(filename):
     mkdir(course_xml_dir)
 
     subprocess.call(['tar', '-xzf', filename, '-C', course_xml_dir])
+
+    _fix_library_source_bug(course_xml_dir)
 
     print >> sys.stderr, 'IMPORTING course:', course_full_id, filename
     course_items = import_course_from_xml(
