@@ -106,6 +106,9 @@ def get_importable_files(get_courses=False):
 def _fix_library_source_bug(course_xml_dir):
     libraries_dir = path.join(course_xml_dir, 'course/library_content/')
 
+    if not path.exists(libraries_dir):
+        return
+
     for library_file in listdir(libraries_dir):
         library_file = path.join(libraries_dir, library_file)
 
