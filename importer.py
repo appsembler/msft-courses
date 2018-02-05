@@ -122,6 +122,7 @@ def _fix_library_source_bug(course_xml_dir):
 
 
 def import_single_course(filename):
+    print >> sys.stderr, 'IMPORTING course:', filename
     course_id, course_run = _filename_to_id_and_run(filename)
 
     course_full_id = 'course-v1:Microsoft+{id}+{run}'.format(
@@ -136,7 +137,7 @@ def import_single_course(filename):
 
     _fix_library_source_bug(course_xml_dir)
 
-    print >> sys.stderr, 'IMPORTING course:', course_full_id, filename
+    print >> sys.stderr, 'IMPORTING course:', course_full_id
     course_items = import_course_from_xml(
         store=MOD_STORE,
         user_id=ModuleStoreEnum.UserID.mgmt_command,
@@ -158,6 +159,7 @@ def import_single_course(filename):
 
 
 def import_single_library(filename):
+    print >> sys.stderr, 'IMPORTING library:', filename
     no_extension = path.basename(filename).replace('.tar.gz', '')
 
     library_xml_dir = path.join(XML_EXTRACT_DIR, no_extension)
@@ -169,7 +171,7 @@ def import_single_library(filename):
         lib_element = lib_xml.find('library')
         target_id = LibraryLocator(org=str(lib_element['org']), library=str(lib_element['library']))
 
-    print >> sys.stderr, 'IMPORTING library:', target_id, filename
+    print >> sys.stderr, 'IMPORTING library:', target_id
     import_library_from_xml(
         store=MOD_STORE,
         user_id=ModuleStoreEnum.UserID.mgmt_command,
