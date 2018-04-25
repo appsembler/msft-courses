@@ -175,6 +175,8 @@ def import_single_course(filename):
             course.end = _get_end_date()
             course.enrollment_end = _get_end_date()
 
+        MOD_STORE.update_item(course, ModuleStoreEnum.UserID.mgmt_command)
+
         if not are_permissions_roles_seeded(course_id):
             print >> sys.stderr, 'Seeding forum roles for course', course_id
             seed_permissions_roles(course_id)
