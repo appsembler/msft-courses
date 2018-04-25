@@ -90,7 +90,7 @@ course-v1:Microsoft+AZURE204x+course
 course-v1:PartnerFY18Q2+AZURE205x+course
 course-v1:PartnerFY18Q2+AZURE206x+course
 course-v1:Lithan+AZURE207x+course
-course-v1:Lithan+AZURE208x+course
+****course-v1:Lithan+AZURE208x+course
 course-v1:Lithan+AZURE209x+course
 ```
 
