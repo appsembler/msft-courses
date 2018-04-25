@@ -166,10 +166,12 @@ def import_single_course(filename):
         course_id = course.id
 
         if _get_start_date():
+            print >> sys.stderr, 'Setting start date:', course_id, '=', _get_start_date()
             course.start = _get_start_date()
             course.enrollment_start = _get_start_date()
 
         if _get_end_date():
+            print >> sys.stderr, 'Setting end date:', course_id, '=', _get_end_date()
             course.end = _get_end_date()
             course.enrollment_end = _get_end_date()
 
