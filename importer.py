@@ -1,7 +1,8 @@
 import json
 from glob import glob
 import subprocess
-from os import path, walk, mkdir, makedirs, listdir
+from os import path, walk, mkdir, makedirs, listdir, environ
+from dateutil import parser
 import fileinput
 import yaml
 import sys
@@ -33,6 +34,15 @@ DATA_DIR = '/edx/var/edxapp/data'  # settings.GITHUB_REPO_ROOT
 WORK_TMP_DIR = '/tmp/courses-workdir'
 ZIP_EXTRACT_DIR = path.join(WORK_TMP_DIR, 'zip_dest')
 XML_EXTRACT_DIR = path.join(WORK_TMP_DIR, 'xml_root')
+
+
+START_DATE = os.environ.get('START_DATE')
+if START_DATE:
+    START_DATE = parser.parse(START_DATE)
+
+END_DATE = os.environ.get('END_DATE')
+if END_DATE:
+    END_DATE = parser.parse(END_DATE)
 
 
 def _get_courses_dir():
@@ -153,6 +163,13 @@ def import_single_course(filename):
 
     for course in course_items:
         course_id = course.id
+
+        if START_DATE:
+            course.start = START_DATE
+
+        if END_DATE:
+            course.end = END_DATE
+
         if not are_permissions_roles_seeded(course_id):
             print >> sys.stderr, 'Seeding forum roles for course', course_id
             seed_permissions_roles(course_id)
