@@ -33,6 +33,6 @@ fi
 cleanup_data_dir
 
 CMS_SHELL="sudo -u edxapp /edx/bin/python.edxapp /edx/bin/manage.edxapp lms --settings=$EDXAPP_ENV shell"
-echo "__file__='$IMPORTER'; COURSES_DIR='$COURSES_DIR'; execfile(__file__);" | $CMS_SHELL
+echo "__file__='$IMPORTER'; START_DATE='$START_DATE'; END_DATE='$END_DATE'; COURSES_DIR='$COURSES_DIR'; execfile(__file__);" | $CMS_SHELL
 
 cleanup_data_dir
