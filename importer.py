@@ -169,17 +169,22 @@ def import_single_course(filename):
     for course in course_items:
         course_id = course.id
 
+        course_updates = {}
+
         if _get_start_date():
             print >> sys.stderr, 'Setting start date:', course_id, '=', _get_start_date()
-            course.start = _get_start_date()
-            course.enrollment_start = _get_start_date()
+            course_updates['enrollment_start'] = _get_start_date().isoformat()
+            course_updates['start_date'] = _get_start_date().isoformat()
 
         if _get_end_date():
             print >> sys.stderr, 'Setting end date:', course_id, '=', _get_end_date()
-            course.end = _get_end_date()
-            course.enrollment_end = _get_end_date()
+            course_updates['enrollment_end'] = _get_end_date().isoformat()
+            course_updates['end_date'] = _get_end_date().isoformat()
 
-        MOD_STORE.update_item(course, ModuleStoreEnum.UserID.mgmt_command)
+        if course_updates:
+            from openedx.core.djangoapps.models.course_details import CourseDetails
+            from openedx.core.djangoapps.util.user_utils import SystemUser
+            CourseDetails.update_from_json(course_id, course_updates, SystemUser())
 
         if not are_permissions_roles_seeded(course_id):
             print >> sys.stderr, 'Seeding forum roles for course', course_id
