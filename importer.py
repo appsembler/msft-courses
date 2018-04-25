@@ -3,6 +3,7 @@ from glob import glob
 import subprocess
 from os import path, walk, mkdir, makedirs, listdir, environ
 from dateutil import parser
+import datetime
 import fileinput
 import yaml
 import sys
@@ -38,13 +39,15 @@ XML_EXTRACT_DIR = path.join(WORK_TMP_DIR, 'xml_root')
 
 
 def _get_start_date():
-    if START_DATE:
-        return parser.parse(START_DATE).replace(tzinfo=pytz.UTC)
+    # if START_DATE:
+    return datetime.datetime(1564, 4, 23, 1, 1, 1, tzinfo=pytz.UTC)
+    # return parser.parse(START_DATE).replace(tzinfo=pytz.UTC)
 
 
 def _get_end_date():
-    if END_DATE:
-        return parser.parse(END_DATE).replace(tzinfo=pytz.UTC)
+    # if END_DATE:
+    return datetime.datetime(1564, 4, 23, 1, 1, 1, tzinfo=pytz.UTC)
+        # return parser.parse(END_DATE).replace(tzinfo=pytz.UTC)
 
 
 def _get_courses_dir():
