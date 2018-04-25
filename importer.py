@@ -36,13 +36,14 @@ ZIP_EXTRACT_DIR = path.join(WORK_TMP_DIR, 'zip_dest')
 XML_EXTRACT_DIR = path.join(WORK_TMP_DIR, 'xml_root')
 
 
-START_DATE = os.environ.get('START_DATE')
-if START_DATE:
-    START_DATE = parser.parse(START_DATE)
+def get_start_date():
+    if START_DATE:
+        return parser.parse(START_DATE)
 
-END_DATE = os.environ.get('END_DATE')
-if END_DATE:
-    END_DATE = parser.parse(END_DATE)
+
+def get_end_date():
+    if END_DATE:
+        return parser.parse(END_DATE)
 
 
 def _get_courses_dir():
@@ -164,11 +165,13 @@ def import_single_course(filename):
     for course in course_items:
         course_id = course.id
 
-        if START_DATE:
-            course.start = START_DATE
+        if get_start_date():
+            course.start = get_start_date()
+            course.enrollment_start = get_start_date()
 
-        if END_DATE:
-            course.end = END_DATE
+        if get_end_date():
+            course.end = get_end_date()
+            course.enrollment_end = get_end_date()
 
         if not are_permissions_roles_seeded(course_id):
             print >> sys.stderr, 'Seeding forum roles for course', course_id

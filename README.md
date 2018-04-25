@@ -57,10 +57,15 @@ course-v1:Microsoft+DEV281x+2017_T4
    suffix before the import.
 
 ### Executing the Import Script
+The import script supports specifying both start and end date of the course and enrollment.
+Those environment variables are optional, 
+but once provided they'll be parsed into Python datetime strings, which will fail
+if given incorrect values.
+
 Run the following command:
 
 ```bash
-$ curl https://raw.githubusercontent.com/appsembler/msft-courses/master/import.sh | bash
+$ START_DATE='2018-10-20' curl https://raw.githubusercontent.com/appsembler/msft-courses/master/import.sh | bash
 ```
 
 Importing a single-course usually takes a minute, so the bulk importing 30 courses usually takes about half an hour.
