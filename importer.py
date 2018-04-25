@@ -9,6 +9,7 @@ import sys
 import shutil
 import tarfile
 from bs4 import BeautifulSoup
+import pytz
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -38,12 +39,12 @@ XML_EXTRACT_DIR = path.join(WORK_TMP_DIR, 'xml_root')
 
 def _get_start_date():
     if START_DATE:
-        return parser.parse(START_DATE)
+        return parser.parse(START_DATE).replace(tzinfo=pytz.UTC)
 
 
 def _get_end_date():
     if END_DATE:
-        return parser.parse(END_DATE)
+        return parser.parse(END_DATE).replace(tzinfo=pytz.UTC)
 
 
 def _get_courses_dir():
