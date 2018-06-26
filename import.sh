@@ -6,9 +6,11 @@ set -o pipefail
 
 VIA_CURL=""
 IMPORTER="$PWD/importer.py"
-BASE_URL="https://raw.githubusercontent.com/appsembler/msft-courses/master"
+BASE_URL="https://raw.githubusercontent.com/bryanlandia/msft-courses/bryan/feature/set-course-start-end-date"
 COURSES_DIR="$PWD"
 DATA_DIR="/edx/var/edxapp/data/"
+COURSE_START_DATE=${COURSE_START_DATE:=""}
+COURSE_END_DATE=${COURSE_END_DATE:=""}
 
 cleanup_data_dir() {
     sudo find "$DATA_DIR" -maxdepth 1 -mindepth 1 -exec rm -rf "{}" \;
@@ -33,6 +35,6 @@ fi
 cleanup_data_dir
 
 CMS_SHELL="sudo -u edxapp /edx/bin/python.edxapp /edx/bin/manage.edxapp lms --settings=$EDXAPP_ENV shell"
-echo "__file__='$IMPORTER'; COURSES_DIR='$COURSES_DIR'; execfile(__file__);" | $CMS_SHELL
+echo "__file__='$IMPORTER'; COURSES_DIR='$COURSES_DIR'; COURSE_START_DATE='$COURSE_START_DATE'; COURSE_END_DATE='$COURSE_END_DATE'; execfile(__file__);" | $CMS_SHELL
 
 cleanup_data_dir
