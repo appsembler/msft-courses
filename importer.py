@@ -1,7 +1,9 @@
+import dateutil
 import json
 from glob import glob
 import subprocess
 from os import path, walk, mkdir, makedirs, listdir
+from pytz import utc
 import fileinput
 import yaml
 import sys
@@ -40,6 +42,40 @@ def _get_courses_dir():
     This is set via `import.sh` at run time.
     """
     return COURSES_DIR
+
+
+def _get_course_start_date():
+    """
+    This is set via `import.sh` at run time.
+    """
+    if COURSE_START_DATE:
+        try:
+            start = dateutil.parser.parse(COURSE_START_DATE)
+        except (AttributeError, ValueError):
+            return False
+
+        if start.tzinfo is None:
+            start = start.replace(tzinfo=utc)
+        return start
+    else:
+        return False
+
+
+def _get_course_end_date():
+    """
+    This is set via `import.sh` at run time.
+    """
+    if COURSE_END_DATE:
+        try:
+            end = dateutil.parser.parse(COURSE_END_DATE)
+        except (AttributeError, ValueError):
+            return False
+
+        if end.tzinfo is None:
+            end = end.replace(tzinfo=utc)
+        return end
+    else:
+        return False
 
 
 def _read_file_in_tgz(filename, sub_filename):
@@ -121,6 +157,24 @@ def _fix_library_source_bug(course_xml_dir):
             library_f.write(str(lib_element))
 
 
+def _set_course_dates(course_id):
+    start = _get_course_start_date()
+    end = _get_course_end_date()
+    course = MOD_STORE.get_course(course_id)
+
+    if start:
+        print >> sys.stderr, 'Setting course start date for ', course_id, 'to', start
+        course.start = start
+
+    if end:
+        print >> sys.stderr, 'Setting course end date for ', course_id, 'to', end
+        course.end = end
+
+    if start or end:
+        course.save()
+        MOD_STORE.update_item(course, course._edited_by)
+
+
 def import_single_course(filename):
     print >> sys.stderr, 'IMPORTING course:', filename
     course_id, course_run = _filename_to_id_and_run(filename)
@@ -156,6 +210,7 @@ def import_single_course(filename):
         if not are_permissions_roles_seeded(course_id):
             print >> sys.stderr, 'Seeding forum roles for course', course_id
             seed_permissions_roles(course_id)
+        _set_course_dates(course_id)
 
 
 def import_single_library(filename):
