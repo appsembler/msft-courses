@@ -57,9 +57,10 @@ course-v1:Microsoft+DEV281x+2017_T4
    suffix before the import.
 
 ### Executing the Import Script
-Run the following command:
+Run the following command, the dates are optional, but recommended:
 
 ```bash
+export COURSE_START_DATE=2018-01-01 COURSE_END_DATE=2019-12-31  # Optional, but recommended
 $ curl https://raw.githubusercontent.com/appsembler/msft-courses/master/import.sh | bash
 ```
 
