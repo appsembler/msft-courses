@@ -97,7 +97,14 @@ def _filename_to_id_and_run(filename):
     basename = path.basename(filename).replace('.tar.gz', '')
     parts = basename.split('-')
 
-    course_id, run = parts[-2:]  # Microsoft course file naming convention
+    if len(parts) == 3:
+        course_id, run = parts[-2:]  # Microsoft course file naming convention
+    elif len(parts) == 4:  # some courses have hyphenated ids.  Assume an additional hyphen is in id
+        course_id = '-'.join((parts[1], parts[2]))
+        run = parts[3]
+    else:
+        raise ValueError("Invalid filename, too many or too few hyphens")
+
 
     return course_id.strip(), run.strip()
 
