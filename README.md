@@ -72,7 +72,7 @@ This is the first file in our archive.
 @ (comment above this line)
 ```
 
-Save the changed file, and then update the zip with the new directory using `zipfile -w zipfile.zip < zipdir.txt`.  That's it.  
+Save the changed file, and then update the zip with the new directory using `zipnote -w zipfile.zip < zipdir.txt`.  That's it.  
 
 ### Executing the Import Script
 Run the following command, the dates are optional, but recommended:
