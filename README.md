@@ -55,6 +55,24 @@ course-v1:Microsoft+DEV281x+2017_T4
  - Some of the courses don't follow that convention. Please rename them: e.g. sometimes a course has a
    timestamp suffix: `Introduction to ReactJS-DEV281x-2017_T4-1519594558.tar.gz`. Please remove that `-1519594558` 
    suffix before the import.
+- Before running the script, it is useful to check course `.tar.gz` filenames inside any `.zip` files to make sure they are the correct format, as well. List the files inside a zip with `unzip -l zipfile.zip`.  A useful utility for changing the names of files in a zip archive is `zipnote`.  Export the file directory of a zip as a text file with `zipnote zipfile.zip > zipdir.txt`.  You can edit the exported `zipdir.txt` using a text editor to update filenames; for example, to change `bad course name-MS-FOO101_2019.tar.gz` to the correct format like `good course name-MSFOO101-2019.tar.gz`, look for
+
+```
+@ bad course name-MS-FOO101_2019.tar.gz
+This is the first file in our archive.
+@ (comment above this line)
+```
+
+and add a line to change it to 
+
+```
+@ bad course name-MS-FOO101_2019.tar.gz
+@=good course name-MSFOO101-2019.tar.gz
+This is the first file in our archive.
+@ (comment above this line)
+```
+
+Save the changed file, and then update the zip with the new directory using `zipfile -w zipfile.zip < zipdir.txt`.  That's it.  
 
 ### Executing the Import Script
 Run the following command, the dates are optional, but recommended:
